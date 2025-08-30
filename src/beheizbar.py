@@ -21,7 +21,7 @@ Us_100mA: np.ndarray = dp.parse_to_df(path_Us_100mA)
 
 q: float = 0.9*1e-4 #m^2
 N: int = 17
-r: float = mc.calc_r(1) #m
+r: float = mc.calc_r(q) #m
 l: float = mc.calc_l(N, r) #m
 
 
@@ -37,14 +37,10 @@ hys_3A = hysteresis.Hysteresis(H_Ms_3A)
 hys_300mA = hysteresis.Hysteresis(H_Ms_300mA)
 hys_100mA = hysteresis.Hysteresis(H_Ms_100mA)
 
-
-
-
-
-
-
 fig_1A = hys_1A.plot_hysteresis("Hysterese 1A", "H in A/m", "M in A/m")
 fig_3A = hys_3A.plot_hysteresis("Hysterese 3A", "H in A/m", "M in A/m")
 fig_300mA = hys_300mA.plot_hysteresis("Hysterese 300mA", "H in A/m", "M in A/m")
 fig_100mA = hys_100mA.plot_hysteresis("Hysterese 100mA", "H in A/m", "M in A/m")
+
+print(hys_100mA.fit_function_lower(2))
 plt.show()

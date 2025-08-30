@@ -6,7 +6,7 @@ def calc_r(q: float) -> float:
 
 
 def calc_l(N: int, r: float) -> float:
-    return 2*np.pi*r*N #m
+    return 2*np.pi*r #m
 
 
 def get_U_max(arr: np.ndarray) -> float:

@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from scipy.optimize import curve_fit
+from uncertainties import ufloat
 
 
 class Hysteresis:
@@ -9,7 +10,7 @@ class Hysteresis:
         self.b1, self.b2 = self._split_branch()
         self.b1_params, self.b1_param_err = self._fit_branch(self.b1)
         self.b2_params, self.b2_param_err = self._fit_branch(self.b2)
-    
+        
     
     def _split_branch_rude(self) -> tuple[np.ndarray, np.ndarray]:
         b1_list, b2_list = [], []
@@ -36,8 +37,8 @@ class Hysteresis:
         return b1, b2
     
     
-    def fit_func(self, x: float, x_c: float, y_s: float, a: float, y_off: float) -> float:
-        return y_s * np.tanh((x - x_c) * a ) + y_off
+    def _richards(self, x, L, U, k, x_c, nu, m):
+        return L + (U - L) / (1.0 + np.exp(-k * (x - x_c)))**nu + m*x
     
     
     def _fit_branch(self, branch: np.ndarray):
@@ -48,27 +49,36 @@ class Hysteresis:
         y_min, y_max = np.min(y), np.max(y)
         x_range = max(x_max - x_min, 1e-12)
 
-        # sinnvolle Startwerte
-        x_c0   = np.median(x)                           # Zentrum der S-Kurve
-        y_s0   = 0.5 * (y_max - y_min)                  # Sättigung
-        y_off0 = 0.5 * (y_max + y_min)                  # Offset
-        a0     = 2.0 / x_range                          # Steilheit ~ 1/Breitenmaß
+        L0 = y_min
+        U0 = y_max
+        k0 = 2.0 / x_range
+        x_c0 = np.median(x)
+        nu0 = 1.0
+        m0 = 0.0
 
-        p0 = [x_c0, y_s0, a0, y_off0]
+        p0 = [L0, U0, k0, x_c0, nu0, m0]
 
-        # Bounds: x_c im Datenbereich, y_s >= 0, a > 0
-        bounds = ([x_min,     0.0,   0.0, -np.inf],
-                [x_max,  np.inf, np.inf,  np.inf])
+     
+        bounds = ([y_min, y_min, 0.0, x_min, 0.0],
+                  [y_max, y_max, np.inf, x_max, np.inf, np.inf])
 
         popt, pcov = curve_fit(
-            self.fit_func,
+            self._richards,
             x, y,
             p0=p0,
-            bounds=bounds,
+            #bounds=bounds,
             maxfev=20000
         )
         perr = np.sqrt(np.diag(pcov))
         return popt, perr
+  
+    
+    def fit_function_upper(self, x: float) -> ufloat:
+        return self._richards(x, *self.b2_params)
+    def fit_function_lower(self, x: float) -> ufloat:
+        y = self._richards(x, *self.b1_params)
+        #return ufloat(y, error?)
+    
     
     def plot_hysteresis(self, title: str, xlabel: str, ylabel: str):
         import matplotlib.pyplot as plt
@@ -82,8 +92,8 @@ class Hysteresis:
         ax.scatter(self.b2[:, 0], self.b2[:, 1], label="branch 2", s=3)
         
         x_fit = np.linspace(min(self.X_Ys[:,0]), max(self.X_Ys[:,0]), 1000)
-        y_fit_b1 = self.fit_func(x_fit, *self.b1_params)
-        y_fit_b2 = self.fit_func(x_fit, *self.b2_params)
+        y_fit_b1 = self._richards(x_fit, *self.b1_params)
+        y_fit_b2 = self._richards(x_fit, *self.b2_params)
         
         ax.plot(x_fit, y_fit_b1, 'r', label="fit branch 1")
         ax.plot(x_fit, y_fit_b2, 'g', label="fit branch 2")
