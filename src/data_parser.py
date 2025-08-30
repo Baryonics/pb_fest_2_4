@@ -3,7 +3,7 @@ import numpy as np
 
 
 class DataParser:
-    def parse_to_df(path: str) -> np.ndarray:
+    def parse_to_np(path: str) -> np.ndarray:
         df = pd.read_csv(path, sep="\t", skiprows=1)
         df.columns = ["X", "Y"]
         arr = df.to_numpy()
