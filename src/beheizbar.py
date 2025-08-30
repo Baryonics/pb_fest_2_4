@@ -53,5 +53,6 @@ fig_3A = hys_3A.plot_hysteresis("Hysterese 3A", "H in A/m", "M in A/m")
 fig_300mA = hys_300mA.plot_hysteresis("Hysterese 300mA", "H in A/m", "M in A/m")
 fig_100mA = hys_100mA.plot_hysteresis("Hysterese 100mA", "H in A/m", "M in A/m")
 
-print(hys_100mA.fit_function_lower(2))
+print(hys_100mA.y_r)
+print(hys_100mA.x_c)
 plt.show()

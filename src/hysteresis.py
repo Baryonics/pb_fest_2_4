@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.optimize import curve_fit
 from uncertainties import ufloat
+from scipy.optimize import root_scalar
 
 
 class Hysteresis:
@@ -10,7 +11,10 @@ class Hysteresis:
         self.b1, self.b2 = self._split_branch()
         self.b1_params, self.b1_param_err = self._fit_branch(self.b1)
         self.b2_params, self.b2_param_err = self._fit_branch(self.b2)
+        self.y_r = self._calc_y_r()
+        self.x_c = self._calc_x_c()
         
+    
     
     def _split_branch_rude(self) -> tuple[np.ndarray, np.ndarray]:
         b1_list, b2_list = [], []
@@ -27,8 +31,10 @@ class Hysteresis:
         return b1, b2
     
     
+    
     def _clean_branches(self, b1: np.ndarray, b2: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         pass
+    
     
     
     def _split_branch(self) -> tuple[np.ndarray, np.ndarray]:
@@ -37,8 +43,10 @@ class Hysteresis:
         return b1, b2
     
     
+    
     def _richards(self, x, L, U, k, x_c, nu, m):
         return L + (U - L) / (1.0 + np.exp(-k * (x - x_c)))**nu + m*x
+    
     
     
     def _fit_branch(self, branch: np.ndarray):
@@ -73,11 +81,35 @@ class Hysteresis:
         return popt, perr
   
     
-    def fit_function_upper(self, x: float) -> ufloat:
+    
+    def fit_function_upper(self, x: float) -> float:
         return self._richards(x, *self.b2_params)
-    def fit_function_lower(self, x: float) -> ufloat:
+    
+    
+    
+    def fit_function_lower(self, x: float) -> float:
         y = self._richards(x, *self.b1_params)
-        #return ufloat(y, error?)
+        return self._richards(x, *self.b1_params)
+    
+    
+    
+    def _calc_y_r(self):
+        x1 = self.fit_function_lower(0.0)
+        x2 = self.fit_function_upper(0.0)
+        y_r_val = (abs(x1) + abs(x2)) / 2.0
+        y_r_err = abs((abs(x1) - abs(x2)) / 2.0)
+        return ufloat(y_r_val, y_r_err)
+    
+    
+    def _calc_x_c(self):
+        sol_lower = root_scalar(self.fit_function_lower, bracket=[-500, 500], method='bisect')
+        sol_upper = root_scalar(self.fit_function_upper, bracket=[-500, 500], method='bisect')
+        x_c_lower = sol_lower.root
+        x_c_upper = sol_upper.root
+        x_c_val = (abs(x_c_lower) + abs(x_c_upper)) / 2.0
+        x_c_err = abs((abs(x_c_lower) - abs(x_c_upper)) / 2.0)
+        return ufloat(x_c_val, x_c_err)
+    
     
     
     def plot_hysteresis(self, title: str, xlabel: str, ylabel: str):
