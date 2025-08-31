@@ -58,7 +58,7 @@ print(df_tex_3A)
 dfs = [df_tex_3A, df_tex_1A, df_tex_300mA, df_tex_100mA]
 
 
-#export_latex(dfs, res_datapath, "beheizbar_results.tex")
+export_latex(dfs, res_datapath, "beheizbar_results.tex")
 
 
 ### Plot Hysteresis Curves ###

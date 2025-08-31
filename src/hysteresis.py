@@ -7,7 +7,12 @@ import matplotlib.pyplot as plt
 
 
 def export_latex(dfs,  path: str, filename: str,):
-    combined_df = pd.concat(dfs, ignore_index=True)
+    #combined_df = pd.concat(dfs, ignore_index=True)
+    combined_df = (
+        pd.concat([d.set_index("$I$ in $[A]$") for d in dfs], axis=1) 
+        .reset_index()
+    )
+
     tex = combined_df.to_latex(
         index=False,
         escape=False,
