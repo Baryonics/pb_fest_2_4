@@ -48,17 +48,17 @@ hys_3A = Hysteresis(H_Ms_3A)
 hys_300mA = Hysteresis(H_Ms_300mA)
 hys_100mA = Hysteresis(H_Ms_100mA)
 
-df_tex_3A = hys_3A.get_data_df_tex(3.0, y_scale=-3)
-df_tex_1A = hys_1A.get_data_df_tex(1.0, y_scale=-3)
+### create tex DataFrames
+df_tex_3A = hys_3A.get_data_df_tex(3.0, y_scale=-4)
+df_tex_1A = hys_1A.get_data_df_tex(1.0, y_scale=-4)
 df_tex_300mA = hys_300mA.get_data_df_tex(0.3, y_scale=-4)
 df_tex_100mA = hys_100mA.get_data_df_tex(0.1, y_scale=-4)
 
-print(df_tex_3A)
-
+# Combine DataFrames
 dfs = [df_tex_3A, df_tex_1A, df_tex_300mA, df_tex_100mA]
 
-
-export_latex(dfs, res_datapath, "beheizbar_results.tex")
+# Save to .tex table
+export_latex(dfs,"Kenngrößen von Hysteresen bei verschiedenen Stromstärken $I$" ,res_datapath, "beheizbar_kenngr.tex")
 
 
 ### Plot Hysteresis Curves ###

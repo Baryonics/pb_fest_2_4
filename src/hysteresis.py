@@ -6,7 +6,7 @@ from scipy.optimize import root_scalar
 import matplotlib.pyplot as plt
 
 
-def export_latex(dfs,  path: str, filename: str,):
+def export_latex(dfs,cap: str, path: str, filename: str,):
     #combined_df = pd.concat(dfs, ignore_index=True)
     combined_df = (
         pd.concat([d.set_index("$I$ in $[A]$") for d in dfs], axis=1) 
@@ -16,8 +16,8 @@ def export_latex(dfs,  path: str, filename: str,):
     tex = combined_df.to_latex(
         index=False,
         escape=False,
-        column_format="lrrrrrr",
-        caption="Hysterese–Kennwerte",
+        column_format="c|c|c|c|c",
+        caption=cap,
         label="tab:hysterese",
         position="H"
     )
@@ -195,29 +195,29 @@ class Hysteresis:
             
         #})
         
-    
+        
         df_tex = pd.DataFrame({
             "$I$ in $[A]$":     [
-                                 f"$M_r^+$ in $[A/m]$",
-                                 f"$M_r^-$ in $[A/m]$",
-                                 f"$M_r$ in $[A/m]$",
+                                 f"$M_r^+$ in $[A/m]\cdot 10^{{{y_scale*-1}}}$",
+                                 f"$M_r^-$ in $[A/m]\cdot 10^{{{y_scale*-1}}}$",
+                                 f"$M_r$ in $[A/m]\cdot 10^{{{y_scale*-1}}}$",
                                  f"$H_c^+$ in $[A/m]$",
                                  f"$H_c^-$ in $[A/m]$",
                                  f"$H_c$ in $[A/m]$",
-                                 f"$Max^+$ in $[A/m]$",
-                                 f"$Max^-$ in $[A/m]$",
-                                 f"$M_{{max}}$ in $[A/m]$"
+                                 f"$M_{{max}}^+$ in $[A/m]\cdot 10^{{{y_scale*-1}}}$",
+                                 f"$M_{{max}}^-$ in $[A/m]\cdot 10^{{{y_scale*-1}}}$",
+                                 f"$M_{{max}}$ in $[A/m]\cdot 10^{{{y_scale*-1}}}$"
                                  ],
             f"${I}$":           [
-                                 f"${self.y_r_upper*10**y_scale:.2f}\cdot 10^{{{y_scale}}}$",
-                                 f"${self.y_r_lower*10**y_scale:.2f}\cdot 10^{{{y_scale}}}$",
-                                 f"${self.y_r*10**y_scale:.2f}\cdot 10^{{{y_scale}}}$",
+                                 f"${self.y_r_upper*10**y_scale:.2f}$",
+                                 f"${self.y_r_lower*10**y_scale:.2f}$",
+                                 f"${self.y_r*10**y_scale:.2f}$",
                                  f"${self.x_c_upper*x_scale:.2f}$",
                                  f"${self.x_c_lower*x_scale:.2f}$",
                                  f"${self.x_c*x_scale:.2f}$",
-                                 f"${self.M_max_upper*10**y_scale:.2f}\cdot 10^{{{y_scale}}}$",
-                                 f"${self.M_max_lower*10**y_scale:.2f}\cdot 10^{{{y_scale}}}$",
-                                 f"${self.M_max*10**y_scale:.2f}\cdot 10^{{{y_scale}}}$"
+                                 f"${self.M_max_upper*10**y_scale:.2f}$",
+                                 f"${self.M_max_lower*10**y_scale:.2f}$",
+                                 f"${self.M_max*10**y_scale:.2f}$"
                                 ]
         })
         return df_tex
