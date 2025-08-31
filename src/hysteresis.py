@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 
 
 def export_latex(dfs,cap: str, path: str, filename: str,):
-    #combined_df = pd.concat(dfs, ignore_index=True)
     combined_df = (
         pd.concat([d.set_index("$I$ in $[A]$") for d in dfs], axis=1) 
         .reset_index()
@@ -181,21 +180,6 @@ class Hysteresis:
 
 
     def get_data_df_tex(self, I: float, x_scale: float = 1, y_scale: float = 1) -> pd.DataFrame:
-        #df_tex = pd.DataFrame({
-            #"$I$ in $[A]$":             [f"${I:.2f}$"],
-            #f"$M_r^+$ in $[A/m]$":      [f"${self.y_r_upper*10**y_scale:.2f}\cdot 10^{{{y_scale}}}$"],
-            #f"$M_r^-$ in $[A/m]$":      [f"${self.y_r_lower*10**y_scale:.2f}\cdot 10^{{{y_scale}}}$"],
-            #f"$M_r$ in $[A/m]$":        [f"${self.y_r*10**y_scale:.2f}\cdot 10^{{{y_scale}}}$"],
-            #f"$H_c^+$ in $[A/m]$":      [f"${self.x_c_upper*x_scale:.2f}$"],
-            #f"$H_c^-$ in $[A/m]$":      [f"${self.x_c_lower*x_scale:.2f}$"],
-            #f"$H_c$ in $[A/m]$":        [f"${self.x_c*x_scale:.2f}$"],
-            #f"$Max^+$ in $[A/m]$":      [f"${self.M_max_upper*10**y_scale:.2f}\cdot 10^{{{y_scale}}}$"],
-            #f"$Max^-$ in $[A/m]$":      [f"${self.M_max_lower*10**y_scale:.2f}\cdot 10^{{{y_scale}}}$"],
-            #f"$M_{{max}}$ in $[A/m]$":  [f"${self.M_max*10**y_scale:.2f}\cdot 10^{{{y_scale}}}$"]
-            
-        #})
-        
-        
         df_tex = pd.DataFrame({
             "$I$ in $[A]$":     [
                                  f"$M_r^+$ in $[A/m]\cdot 10^{{{y_scale*-1}}}$",

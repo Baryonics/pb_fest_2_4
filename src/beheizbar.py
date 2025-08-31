@@ -16,7 +16,7 @@ path_Us_100mA = "data/A_3-3-1/KH_100mA"
 
 
 ### Output Paths ###
-plot_path = "res/plots/beheizbar/"
+plot_path = "res/beheizbar/plots/"
 res_datapath = "res/beheizbar/"
 
 
@@ -48,7 +48,7 @@ hys_3A = Hysteresis(H_Ms_3A)
 hys_300mA = Hysteresis(H_Ms_300mA)
 hys_100mA = Hysteresis(H_Ms_100mA)
 
-### create tex DataFrames
+### Save data to tex files ###
 df_tex_3A = hys_3A.get_data_df_tex(3.0, y_scale=-4)
 df_tex_1A = hys_1A.get_data_df_tex(1.0, y_scale=-4)
 df_tex_300mA = hys_300mA.get_data_df_tex(0.3, y_scale=-4)
@@ -66,6 +66,13 @@ fig_1A = hys_1A.plot_hysteresis("Hysterese $I=1A$", "$H$ in $A/m$", "M in A/m", 
 fig_3A = hys_3A.plot_hysteresis("Hysterese $I=3A$", "$H$ in $A/m$", "M in A/m", "Remanenz $M_r$", "Koerzitivfeldstärke $H_c$")
 fig_300mA = hys_300mA.plot_hysteresis("Hysterese $I=300mA$", "$H$ in $A/m$", "M in A/m", "Remanenz $M_r$", "Koerzitivfeldstärke $H_c$")
 fig_100mA = hys_100mA.plot_hysteresis("Hysterese $I=100mA$", "$H in A/m$", "M in A/m", "Remanenz $M_r$", "Koerzitivfeldstärke $H_c$")
+
+
+### Save plots ###
+fig_1A.savefig(plot_path + "1A.png")
+fig_3A.savefig(plot_path + "3A.png")
+fig_300mA.savefig(plot_path + "300mA.png")
+fig_100mA.savefig(plot_path + "100mA.png")
 
 
 plt.show()
