@@ -1,18 +1,20 @@
 from hysteresis import Hysteresis
+from commutation_curve import CommutationCurve
 from hysteresis import export_latex
 from data_parser import DataParser as dp
 import numpy as np
 import magn_core as mc
 from matplotlib import pyplot as plt
-import matplotlib
-from uncertainties import ufloat
-import pandas as pd
+
 
 ### Data Paths ###
 path_Us_3A = "data/A_3-3-1/KH_3A"
 path_Us_1A = "data/A_3-3-1/KH_1A"
 path_Us_300mA = "data/A_3-3-1/KH_300mA"
 path_Us_100mA = "data/A_3-3-1/KH_100mA"
+
+path_Us_komm_3A = "data/A_3-3-2_Susz/KH_3A"
+path_Us_komm_100mA = "data/A_3-3-2_Susz/KH_100mA"
 
 
 ### Output Paths ###
@@ -27,6 +29,9 @@ Us_3A: np.ndarray = dp.parse_to_np(path_Us_3A)
 Us_300mA: np.ndarray = dp.parse_to_np(path_Us_300mA)
 Us_100mA: np.ndarray = dp.parse_to_np(path_Us_100mA)
 
+Us_komm_3A: np.ndarray = dp.parse_to_np(path_Us_komm_3A)
+Us_komm_100mA: np.ndarray = dp.parse_to_np(path_Us_komm_100mA)
+
 
 ### Set Constants ###
 q: float = 0.9*1e-4 #m^2
@@ -34,7 +39,8 @@ N: int = 17
 r: float = mc.calc_r(q) #m
 l: float = mc.calc_l(N, r) #m
 
-
+### Excercice 3.3.1 ###
+#---------------------------------------------------------------------#
 ### Calculate H and M ###
 H_Ms_1A: np.ndarray = mc.calc_H_Ms(Us_1A, 1.0, N, q)
 H_Ms_3A: np.ndarray = mc.calc_H_Ms(Us_3A, 3.0, N, q)
@@ -62,10 +68,37 @@ export_latex(dfs,"Kenngrößen von Hysteresen bei verschiedenen Stromstärken $I
 
 
 ### Plot Hysteresis Curves ###
-fig_1A = hys_1A.plot_hysteresis("Hysterese $I=1A$", "$H$ in $A/m$", "M in A/m", "Remanenz $M_r$", "Koerzitivfeldstärke $H_c$")
-fig_3A = hys_3A.plot_hysteresis("Hysterese $I=3A$", "$H$ in $A/m$", "M in A/m", "Remanenz $M_r$", "Koerzitivfeldstärke $H_c$")
-fig_300mA = hys_300mA.plot_hysteresis("Hysterese $I=300mA$", "$H$ in $A/m$", "M in A/m", "Remanenz $M_r$", "Koerzitivfeldstärke $H_c$")
-fig_100mA = hys_100mA.plot_hysteresis("Hysterese $I=100mA$", "$H in A/m$", "M in A/m", "Remanenz $M_r$", "Koerzitivfeldstärke $H_c$")
+fig_1A = hys_1A.plot_hysteresis(
+    title="Hysterese $I=1A$",
+    xlabel="$H$ in $A/m$",
+    ylabel="$M$ in $A/m$",
+    rem_label="Remanenz $M_r$",
+    coerc_label="Koerzitivfeldstärke $H_c$"
+)
+
+fig_3A = hys_3A.plot_hysteresis(
+    title="Hysterese $I=3A$",
+    xlabel="$H$ in $A/m$",
+    ylabel="$M$ in $A/m$",
+    rem_label="Remanenz $M_r$",
+    coerc_label="Koerzitivfeldstärke $H_c$"
+)
+
+fig_300mA = hys_300mA.plot_hysteresis(
+    title="Hysterese $I=300mA$",
+    xlabel="$H$ in $A/m$",
+    ylabel="$M$ in $A/m$",
+    rem_label="Remanenz $M_r$",
+    coerc_label="Koerzitivfeldstärke $H_c$"
+)
+
+fig_100mA = hys_100mA.plot_hysteresis(
+    title="Hysterese $I=100mA$",
+    xlabel="$H$ in $A/m$",
+    ylabel="$M$ in $A/m$",
+    rem_label="Remanenz $M_r$",
+    coerc_label="Koerzitivfeldstärke $H_c$"
+)
 
 
 ### Save plots ###
@@ -73,6 +106,53 @@ fig_1A.savefig(plot_path + "1A.png")
 fig_3A.savefig(plot_path + "3A.png")
 fig_300mA.savefig(plot_path + "300mA.png")
 fig_100mA.savefig(plot_path + "100mA.png")
+#---------------------------------------------------------------------#
 
+
+### Excercise 3.3.2 ###
+#---------------------------------------------------------------------#
+### Calculate H adn M values ###
+H_Ms_komm_3A =      mc.calc_H_Ms(Us_komm_3A, 3.0, N, q)
+H_Ms_komm_100mA =   mc.calc_H_Ms(Us_komm_100mA, 0.1, N, q)
+
+
+### Create Commutation Curve Objects ###
+commcu_3A =     CommutationCurve(H_Ms_komm_3A)
+commcu_100mA =  CommutationCurve(H_Ms_komm_100mA)
+
+
+### Plot Commutation Curves ###
+fig_commcu_fit_3A = commcu_3A.plot_commutation_curve(
+    title="Kommutierungskurve bei $I_{max}=3A$",
+    xlabel="$H$ in $A/m$",
+    ylabel="$M$ in $A/m$"
+)
+
+fig_commcu_fit_100mA = commcu_100mA.plot_commutation_curve(
+    title="Kommutierungskurve bei $I_{max}=100mA$",
+    xlabel="$H$ in $A/m$",
+    ylabel="$T$ in $°C$"
+)
+
+
+### Plot suszeptibility Curves ###
+fig_dM_dH_100mA = commcu_100mA.plot_deriv(
+    title="Suszeptibilität bei $I=100mA$",
+    xlabel="$H$ in $A/m$",
+    ylabel="Suszeptibilität $dM/dH$"
+)
+
+fig_dM_dH_3A = commcu_3A.plot_deriv(
+    title="Suszeptibilität bei $I=3A$",
+    xlabel="$H$ in $A/m$",
+    ylabel="Suszeptibilität $dM/dH$"
+)
+
+
+### Save all Plots ###
+fig_commcu_fit_3A.savefig(plot_path + "komm_3A.png")
+fig_commcu_fit_100mA.savefig(plot_path + "komm_100mA.png")
+fig_dM_dH_3A.savefig(plot_path + "dM_dH_3A.png")
+fig_dM_dH_100mA.savefig(plot_path +"dM_dH_100mA.png")
 
 plt.show()

@@ -6,7 +6,7 @@ from scipy.optimize import root_scalar
 import matplotlib.pyplot as plt
 
 
-def export_latex(dfs,cap: str, path: str, filename: str,):
+def export_latex(dfs, cap: str, path: str, filename: str,):
     combined_df = (
         pd.concat([d.set_index("$I$ in $[A]$") for d in dfs], axis=1) 
         .reset_index()
@@ -25,9 +25,7 @@ def export_latex(dfs,cap: str, path: str, filename: str,):
             .replace(r"\midrule", r"\hline")
             .replace(r"\bottomrule", r"")
             .replace(r"+/-", r" \pm "))
-            
-
-
+    
     with open(path+filename, "w", encoding="utf-8") as f:
         f.write(tex)
 
@@ -156,6 +154,7 @@ class Hysteresis:
         ax.set_title(title)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0)) 
         ax.grid()
         ax.scatter(self.X_Ys[:, 0], self.X_Ys[:, 1], label="Messdaten", s=3)
         #ax.scatter(self.b2[:, 0], self.b2[:, 1], label="branch 2", s=3)
