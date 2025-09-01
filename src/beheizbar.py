@@ -66,6 +66,11 @@ dfs = [df_tex_3A, df_tex_1A, df_tex_300mA, df_tex_100mA]
 # Save to .tex table
 export_latex(dfs,"Kenngrößen von Hysteresen bei verschiedenen Stromstärken $I$" ,res_datapath, "beheizbar_kenngr.tex")
 
+# Save fit parameters to .tex
+hys_1A.save_fit_params_to_tex(res_datapath, "1A_hyst_fit_pos.tex", "1A_hyst_fit_neg.tex", 1.0)
+hys_3A.save_fit_params_to_tex(res_datapath, "3A_hyst_fit_pos.tex", "3A_hyst_fit_neg.tex", 3.0)
+hys_300mA.save_fit_params_to_tex(res_datapath, "300mA_hyst_fit_pos.tex", "300mA_hyst_fit_neg.tex", 0.3)
+hys_100mA.save_fit_params_to_tex(res_datapath, "100mA_hyst_fit_pos.tex", "100mA_hyst_fit_neg.tex", 0.1)
 
 ### Plot Hysteresis Curves ###
 fig_1A = hys_1A.plot_hysteresis(

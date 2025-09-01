@@ -4,6 +4,7 @@ from scipy.optimize import curve_fit
 from uncertainties import ufloat
 from scipy.optimize import root_scalar
 import matplotlib.pyplot as plt
+from fit_params_tex import FitParametersTex
 
 
 def export_latex(dfs, cap: str, path: str, filename: str,):
@@ -31,12 +32,13 @@ def export_latex(dfs, cap: str, path: str, filename: str,):
 
 
 
-class Hysteresis:
+class Hysteresis:  
     def __init__(self, X_Ys: np.ndarray):
         self.X_Ys = X_Ys
-        self.b1, self.b2 = self._split_branch()
-        self.b1_params, self.b1_param_err = self._fit_branch(self.b1)
-        self.b2_params, self.b2_param_err = self._fit_branch(self.b2)
+        self.param_names = ["$L_0$", "$U_0$", "$k_0$", "$x_{c}^0$", "$\nu_0$", "$m_0$"]  
+        self.b_pos, self.b_neg = self._split_branch()
+        self.b_pos_params, self.b_pos_param_err = self._fit_branch(self.b_pos)
+        self.b_neg_params, self.b_neg_param_err = self._fit_branch(self.b_neg)
         self.y_r, self.y_r_lower, self.y_r_upper = self._calc_y_r()
         self.x_c, self.x_c_lower, self.x_c_upper = self._calc_x_c()
         self.M_max, self.M_max_lower, self.M_max_upper = self._calc_M_max()
@@ -44,30 +46,30 @@ class Hysteresis:
     
     
     def _split_branch_rude(self) -> tuple[np.ndarray, np.ndarray]:
-        b1_list, b2_list = [], []
+        b_pos_list, b_neg_list = [], []
 
         for i in range(len(self.X_Ys) - 1):
             row = self.X_Ys[i, :]
             if self.X_Ys[i, 0] - self.X_Ys[i+1, 0] < 0:
-                b1_list.append(row)
+                b_neg_list.append(row)
             else:
-                b2_list.append(row)
+                b_pos_list.append(row)
 
-        b1 = np.array(b1_list).reshape(-1, 2)
-        b2 = np.array(b2_list).reshape(-1, 2)
-        return b1, b2
+        b_pos= np.array(b_pos_list).reshape(-1, 2)
+        b_neg = np.array(b_neg_list).reshape(-1, 2)
+        return b_pos, b_neg
     
     
     
-    def _clean_branches(self, b1: np.ndarray, b2: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def _clean_branches(self, b_pos: np.ndarray, b_neg: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         pass
     
     
     
     def _split_branch(self) -> tuple[np.ndarray, np.ndarray]:
-        b1, b2 = self._split_branch_rude()
-        #b1, b2 = self._cleanbranches(b1, b2)
-        return b1, b2
+        b_pos, b_neg = self._split_branch_rude()
+        #b_pos, b_neg = self._cleanbranches(b_pos, b_neg)
+        return b_pos, b_neg
     
     
     
@@ -92,8 +94,7 @@ class Hysteresis:
         m0 = 0.0
 
         p0 = [L0, U0, k0, x_c0, nu0, m0]
-
-     
+             
         bounds = ([y_min, y_min, 0.0, x_min, 0.0],
                   [y_max, y_max, np.inf, x_max, np.inf, np.inf])
 
@@ -110,13 +111,13 @@ class Hysteresis:
     
     
     def fit_function_upper(self, x: float) -> float:
-        return self._richards(x, *self.b2_params)
+        return self._richards(x, *self.b_neg_params)
     
     
     
     def fit_function_lower(self, x: float) -> float:
-        y = self._richards(x, *self.b1_params)
-        return self._richards(x, *self.b1_params)
+        y = self._richards(x, *self.b_pos_params)
+        return self._richards(x, *self.b_pos_params)
     
     
     
@@ -157,14 +158,14 @@ class Hysteresis:
         ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0)) 
         ax.grid()
         ax.scatter(self.X_Ys[:, 0], self.X_Ys[:, 1], label="Messdaten", s=3)
-        #ax.scatter(self.b2[:, 0], self.b2[:, 1], label="branch 2", s=3)
+        #ax.scatter(self.b_neg[:, 0], self.b_neg[:, 1], label="branch 2", s=3)
         
         x_fit = np.linspace(min(self.X_Ys[:,0]), max(self.X_Ys[:,0]), 1000)
-        y_fit_b1 = self._richards(x_fit, *self.b1_params)
-        y_fit_b2 = self._richards(x_fit, *self.b2_params)
+        y_fit_b_pos = self._richards(x_fit, *self.b_pos_params)
+        y_fit_b_neg = self._richards(x_fit, *self.b_neg_params)
         
-        ax.plot(x_fit, y_fit_b1, 'r', label="Fit unterer Ast")
-        ax.plot(x_fit, y_fit_b2, 'g', label="Fit oberer Ast")
+        ax.plot(x_fit, y_fit_b_pos, 'r', label="Fit vorlaufender Ast")
+        ax.plot(x_fit, y_fit_b_neg, 'g', label="Fit rücklaufender Ast")
         
         #ax.scatter(self.x_c_lower, 0, color='yellow', s=60, marker='D', edgecolors='black', label="x_c lower")
         #ax.scatter(self.x_c_upper, 0, color='green', s=60, marker='P', edgecolors='black', label="x_c upper")
@@ -178,6 +179,28 @@ class Hysteresis:
 
 
 
+    def save_fit_params_to_tex(self, path: str, fname_pos: str, fname_neg: str, current: float):
+        fit_tex_pos = FitParametersTex(
+            popt=self.b_pos_params,
+            perr=self.b_pos_param_err,
+            names=self.param_names,
+            lab="Fit_par",
+            cap=f"Fit Parameter Hysterese bei $I={current}A$ vorläufige Richtung "
+        )
+        
+        fit_tex_neg = FitParametersTex(
+            popt=self.b_neg_params,
+            perr=self.b_neg_param_err,
+            names=self.param_names,
+            lab="Fit_par",
+            cap=f"Fit Parameter Hysterese bei $I={current}A$ rückläufige Richtung "
+        )
+        
+        fit_tex_pos.params_export_tex(path, fname_pos)
+        fit_tex_neg.params_export_tex(path, fname_neg)
+    
+    
+    
     def get_data_df_tex(self, I: float, x_scale: float = 1, y_scale: float = 1) -> pd.DataFrame:
         df_tex = pd.DataFrame({
             "$I$ in $[A]$":     [
