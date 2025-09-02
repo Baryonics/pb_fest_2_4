@@ -111,10 +111,10 @@ fig_100mA.savefig(plot_path + "100mA.png")
 export_latex(dfs,"Kenngrößen von Hysteresen bei verschiedenen Stromstärken $I$" ,res_datapath, "beheizbar_kenngr.tex")
 
 # Save fit parameters to .tex
-hys_1A.save_fit_params_to_tex(res_datapath, "1A_hyst_fit_pos.tex", "1A_hyst_fit_neg.tex", 1.0)
-hys_3A.save_fit_params_to_tex(res_datapath, "3A_hyst_fit_pos.tex", "3A_hyst_fit_neg.tex", 3.0)
-hys_300mA.save_fit_params_to_tex(res_datapath, "300mA_hyst_fit_pos.tex", "300mA_hyst_fit_neg.tex", 0.3)
-hys_100mA.save_fit_params_to_tex(res_datapath, "100mA_hyst_fit_pos.tex", "100mA_hyst_fit_neg.tex", 0.1)
+hys_1A.save_fit_params_to_tex(res_datapath, "1A_hyst_fit_param.tex", 1.0)
+hys_3A.save_fit_params_to_tex(res_datapath, "3A_hyst_fit_param.tex", 3.0)
+hys_300mA.save_fit_params_to_tex(res_datapath, "300mA_hyst_fit_param.tex", 0.3)
+hys_100mA.save_fit_params_to_tex(res_datapath, "100mA_hyst_fit_param.tex", 0.1)
 #---------------------------------------------------------------------#
 
 

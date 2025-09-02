@@ -3,11 +3,18 @@ from uncertainties import ufloat
 from decimal import Decimal
 
 
-def df_to_tex_df(params_df, cap: str, lab: str):
+def df_to_tex_df(params_df, cap: str="", lab: str=""):
+    if params_df.shape[1] == 2:
+        column_format = "r|c"
+    elif params_df.shape[1] == 3:
+        column_format = "r|c|c"
+    else:
+        column_format = "r" + "|c" * (params_df.shape[1] - 1)
+
     tabular = params_df.to_latex(
         index=False,
         escape=False,
-        column_format="@{}r|c@{}"  # optional: Außenabstände entfernen
+        column_format=column_format
     )
     params_tex = (
         r"\begin{table}[H]" "\n"
@@ -23,6 +30,7 @@ def df_to_tex_df(params_df, cap: str, lab: str):
         .replace(r"\bottomrule", r"")
         .replace(r"+/-", r" \pm "))
     return params_tex
+
 
 
 class FitParametersTex:
@@ -49,40 +57,26 @@ class FitParametersTex:
             "Wert": wert_str
         })
         self.params_tex = df_to_tex_df(self.params_df, cap, lab)
-        #tabular = self.params_df.to_latex(
-        #    index=False,
-        #    escape=False,
-        #    column_format="@{}r|c@{}"  # optional: Außenabstände entfernen
-        #)
-#
-        #self.params_tex = (
-        #    r"\begin{table}[H]" "\n"
-        #    r"\centering" "\n"
-        #    + tabular + "\n"
-        #    rf"\caption{{{cap}}}" "\n"
-        #    rf"\label{{{lab}}}" "\n"
-        #    r"\end{table}"
-        #)
-        
-        #self.params_tex = (self.params_tex.replace(r"\toprule", r"")
-        #    .replace(r"\midrule", r"\hline")
-        #    .replace(r"\bottomrule", r"")
-        #    .replace(r"+/-", r" \pm "))
-    
-    
-    
     def params_export_tex(self, path: str, filename: str):
-        with open(path+filename, "w", encoding="utf-8") as f:
-            f.write(self.params_tex)
+        params_export_tex(self.params_tex, path, filename)
+    
+    
+
+def params_export_tex(params_tex, path: str, filename: str):
+    with open(path+filename, "w", encoding="utf-8") as f:
+        f.write(params_tex)
             
     
-    # TODO: create function to combine two Fit param Tables for hysteresis
-def combine(param_a: FitParametersTex, param_b: FitParametersTex, cap:str, lab: str) -> FitParametersTex:
+
+def combine(param_a, param_b, cap, lab, title_a="Vorl. Strang", title_b="Rückl. Strang"):
     dfs = [param_a.params_df, param_b.params_df]
-    combined_df = (
-        pd.concat([d.set_index("Parameter") for d in dfs], axis=1) 
-        .reset_index()
-    )
+    combined_df = pd.concat(
+        [
+            dfs[0].set_index("Parameter")["Wert"].rename(title_a),
+            dfs[1].set_index("Parameter")["Wert"].rename(title_b),
+        ],
+        axis=1
+    ).reset_index()
+
     params_tex = df_to_tex_df(combined_df, cap, lab)
-    
-    print(params_tex)
+    return params_tex
