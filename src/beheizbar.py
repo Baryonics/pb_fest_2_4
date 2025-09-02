@@ -5,6 +5,8 @@ from data_parser import DataParser as dp
 import numpy as np
 import magn_core as mc
 from matplotlib import pyplot as plt
+from scipy.signal import savgol_filter
+from uncertainties import ufloat
 
 
 ### Data Paths ###
@@ -15,6 +17,8 @@ path_Us_100mA = "data/A_3-3-1/KH_100mA"
 
 path_Us_komm_3A = "data/A_3-3-2_Susz/KH_3A"
 path_Us_komm_100mA = "data/A_3-3-2_Susz/KH_100mA"
+
+path_Us_temp_3A = "data/A_3-3-3_Temp/KH_3A_Temp"
 
 
 ### Output Paths ###
@@ -32,6 +36,7 @@ Us_100mA: np.ndarray = dp.parse_to_np(path_Us_100mA)
 Us_komm_3A: np.ndarray = dp.parse_to_np(path_Us_komm_3A)
 Us_komm_100mA: np.ndarray = dp.parse_to_np(path_Us_komm_100mA)
 
+Us_temp_3A: np.ndarray = dp.parse_to_np(path_Us_temp_3A)
 
 ### Set Constants ###
 q: float = 0.9*1e-4 #m^2
@@ -140,7 +145,7 @@ fig_commcu_fit_3A = commcu_3A.plot_commutation_curve(
 fig_commcu_fit_100mA = commcu_100mA.plot_commutation_curve(
     title="Kommutierungskurve bei $I_{max}=100mA$",
     xlabel="$H$ in $A/m$",
-    ylabel="$T$ in $°C$"
+    ylabel="$M$ in $A/M$"
 )
 
 
@@ -180,4 +185,34 @@ fig_dM_dH_100mA.savefig(plot_path +"dM_dH_100mA.png")
 
 
 
+### Excercise 3.3.3 ###
+#---------------------------------------------------------------------#
+Ms_temp_3A: np.ndarray = mc.calc_M(Us_temp_3A[:,1],q,N)
+Ts_temp_3A: np.ndarray = Us_temp_3A[:,0]
+
+fig_temp, ax_temp = plt.subplots()
+ax_temp.set_title("Temperaturab")
+ax_temp.set_xlabel("Temperatur $T$ in $°C$")
+ax_temp.set_ylabel("Magnetisierung $M$ in $A/M$")
+ax_temp.ticklabel_format(axis='y', style='sci', scilimits=(0, 0)) 
+ax_temp.grid()
+ax_temp.scatter(Ts_temp_3A, Ms_temp_3A, label="Messdaten", s=0.4)
+
+
+mask = Ms_temp_3A > 0
+T = Ts_temp_3A[mask].astype(float)
+M = Ms_temp_3A[mask].astype(float)
+
+dT = np.median(np.diff(T))
+M_filtered = savgol_filter(M, window_length=21, polyorder=1, deriv=1, delta=dT, mode="interp")
+index = np.argmin(M_filtered)
+Tc_val = T[index]
+
+w = 20
+Tc_err = np.std(T[index-w:index+w])/np.sqrt(2*w)
+Tc = ufloat(Tc_val, Tc_err)
+
+Tc_tex = f"$$ (T_c = {Tc_val:.2f} \pm {Tc_err:.2f})°C $$"
+with open(res_datapath+"currie_temp.tex", "w", encoding="utf-8") as f:
+    f.write(Tc_tex)
 plt.show()

@@ -179,6 +179,7 @@ class Hysteresis:
         return fig
 
 
+
     # TODO: combine two branches to one table. See fit_params_tex.py
     def save_fit_params_to_tex(self, path: str, fname: str, current: float):
         fit_tex_pos = FitParametersTex(
