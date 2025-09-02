@@ -5,6 +5,7 @@ from uncertainties import ufloat
 from scipy.optimize import root_scalar
 import matplotlib.pyplot as plt
 from fit_params_tex import FitParametersTex
+import fit_params_tex as fptx
 
 
 def export_latex(dfs, cap: str, path: str, filename: str,):
@@ -178,13 +179,13 @@ class Hysteresis:
         return fig
 
 
-
+    # TODO: combine two branches to one table. See fit_params_tex.py
     def save_fit_params_to_tex(self, path: str, fname_pos: str, fname_neg: str, current: float):
         fit_tex_pos = FitParametersTex(
             popt=self.b_pos_params,
             perr=self.b_pos_param_err,
             names=self.param_names,
-            lab="Fit_par",
+            lab=f"tab:fit_par_pos_{current}A",
             cap=f"Fit Parameter Hysterese bei $I={current}A$ vorläufige Richtung "
         )
         
@@ -192,9 +193,10 @@ class Hysteresis:
             popt=self.b_neg_params,
             perr=self.b_neg_param_err,
             names=self.param_names,
-            lab="Fit_par",
+            lab=f"tab:fit_par_neg_{current}A",
             cap=f"Fit Parameter Hysterese bei $I={current}A$ rückläufige Richtung "
         )
+        fptx.combine(fit_tex_pos ,fit_tex_neg, "P", "c")
         
         fit_tex_pos.params_export_tex(path, fname_pos)
         fit_tex_neg.params_export_tex(path, fname_neg)

@@ -63,14 +63,7 @@ df_tex_100mA = hys_100mA.get_data_df_tex(0.1, y_scale=-4)
 # Combine DataFrames
 dfs = [df_tex_3A, df_tex_1A, df_tex_300mA, df_tex_100mA]
 
-# Save to .tex table
-export_latex(dfs,"Kenngrößen von Hysteresen bei verschiedenen Stromstärken $I$" ,res_datapath, "beheizbar_kenngr.tex")
 
-# Save fit parameters to .tex
-hys_1A.save_fit_params_to_tex(res_datapath, "1A_hyst_fit_pos.tex", "1A_hyst_fit_neg.tex", 1.0)
-hys_3A.save_fit_params_to_tex(res_datapath, "3A_hyst_fit_pos.tex", "3A_hyst_fit_neg.tex", 3.0)
-hys_300mA.save_fit_params_to_tex(res_datapath, "300mA_hyst_fit_pos.tex", "300mA_hyst_fit_neg.tex", 0.3)
-hys_100mA.save_fit_params_to_tex(res_datapath, "100mA_hyst_fit_pos.tex", "100mA_hyst_fit_neg.tex", 0.1)
 
 ### Plot Hysteresis Curves ###
 fig_1A = hys_1A.plot_hysteresis(
@@ -111,6 +104,17 @@ fig_1A.savefig(plot_path + "1A.png")
 fig_3A.savefig(plot_path + "3A.png")
 fig_300mA.savefig(plot_path + "300mA.png")
 fig_100mA.savefig(plot_path + "100mA.png")
+
+
+### Save Data to tex ###
+# Save results 
+export_latex(dfs,"Kenngrößen von Hysteresen bei verschiedenen Stromstärken $I$" ,res_datapath, "beheizbar_kenngr.tex")
+
+# Save fit parameters to .tex
+hys_1A.save_fit_params_to_tex(res_datapath, "1A_hyst_fit_pos.tex", "1A_hyst_fit_neg.tex", 1.0)
+hys_3A.save_fit_params_to_tex(res_datapath, "3A_hyst_fit_pos.tex", "3A_hyst_fit_neg.tex", 3.0)
+hys_300mA.save_fit_params_to_tex(res_datapath, "300mA_hyst_fit_pos.tex", "300mA_hyst_fit_neg.tex", 0.3)
+hys_100mA.save_fit_params_to_tex(res_datapath, "100mA_hyst_fit_pos.tex", "100mA_hyst_fit_neg.tex", 0.1)
 #---------------------------------------------------------------------#
 
 
@@ -154,10 +158,26 @@ fig_dM_dH_3A = commcu_3A.plot_deriv(
 )
 
 
+### save parameters to tex ###
+commcu_100mA.save_fit_params_to_tex(
+    path=res_datapath,
+    fname="komm_fit_params_100mA.tex",
+    current=0.1
+)
+
+commcu_3A.save_fit_params_to_tex(
+    path=res_datapath,
+    fname="komm_fit_params_3A.tex",
+    current=3.0
+)
+
+
 ### Save all Plots ###
 fig_commcu_fit_3A.savefig(plot_path + "komm_3A.png")
 fig_commcu_fit_100mA.savefig(plot_path + "komm_100mA.png")
 fig_dM_dH_3A.savefig(plot_path + "dM_dH_3A.png")
 fig_dM_dH_100mA.savefig(plot_path +"dM_dH_100mA.png")
+
+
 
 plt.show()
