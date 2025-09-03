@@ -198,6 +198,7 @@ ax_temp.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
 ax_temp.grid()
 ax_temp.scatter(Ts_temp_3A, Ms_temp_3A, label="Messdaten", s=0.4)
 
+fig_temp.savefig(res_datapath+"temp.png")
 
 mask = Ms_temp_3A > 0
 T = Ts_temp_3A[mask].astype(float)
