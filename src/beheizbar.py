@@ -191,7 +191,7 @@ Ms_temp_3A: np.ndarray = mc.calc_M(Us_temp_3A[:,1],q,N)
 Ts_temp_3A: np.ndarray = Us_temp_3A[:,0]
 
 fig_temp, ax_temp = plt.subplots()
-ax_temp.set_title("Temperaturab")
+ax_temp.set_title("Temperaturabhängigkeit der Magnetisierung")
 ax_temp.set_xlabel("Temperatur $T$ in $°C$")
 ax_temp.set_ylabel("Magnetisierung $M$ in $A/M$")
 ax_temp.ticklabel_format(axis='y', style='sci', scilimits=(0, 0)) 
