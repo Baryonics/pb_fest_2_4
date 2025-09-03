@@ -57,6 +57,10 @@ class FitParametersTex:
             "Wert": wert_str
         })
         self.params_tex = df_to_tex_df(self.params_df, cap, lab)
+        
+        
+        
+        
     def params_export_tex(self, path: str, filename: str):
         params_export_tex(self.params_tex, path, filename)
     

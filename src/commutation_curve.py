@@ -82,7 +82,7 @@ class CommutationCurve:
             perr=self.komm_fit_err,
             names=self.komm_param_names,
             lab=f"tab:komm_par_{current}A",
-            cap=f"Fit Parameter Hysterese bei $I={current}A$ vorläufige Richtung "
+            cap=f"Fit Parameter Kommutierungskurve bei $I={current}A$."
         )
         
         fit_tex_pos.params_export_tex(path, fname)
