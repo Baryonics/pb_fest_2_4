@@ -44,6 +44,8 @@ N: int = 17
 r: float = mc.calc_r(q) #m
 l: float = mc.calc_l(N, r) #m
 
+print("l = ", l)
+
 ### Excercice 3.3.1 ###
 #---------------------------------------------------------------------#
 ### Calculate H and M ###
@@ -205,7 +207,7 @@ T = Ts_temp_3A[mask].astype(float)
 M = Ms_temp_3A[mask].astype(float)
 
 dT = np.median(np.diff(T))
-M_filtered = savgol_filter(M, window_length=21, polyorder=1, deriv=1, delta=dT, mode="interp")
+M_filtered = savgol_filter(M, window_length=51, polyorder=1, deriv=1, delta=dT, mode="interp")
 index = np.argmin(M_filtered)
 Tc_val = T[index]
 
@@ -213,7 +215,7 @@ w = 20
 Tc_err = np.std(T[index-w:index+w])/np.sqrt(2*w)
 Tc = ufloat(Tc_val, Tc_err)
 
-Tc_tex = f"$$ (T_c = {Tc_val:.2f} \pm {Tc_err:.2f})°C $$"
+Tc_tex = f"$$ T_c = ({Tc_val:.2f} \pm {Tc_err:.2f})^\circ\mathrm{{C}} $$"
 with open(res_datapath+"currie_temp.tex", "w", encoding="utf-8") as f:
     f.write(Tc_tex)
 plt.show()
