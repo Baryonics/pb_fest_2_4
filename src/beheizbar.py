@@ -39,9 +39,9 @@ Us_komm_100mA: np.ndarray = dp.parse_to_np(path_Us_komm_100mA)
 Us_temp_3A: np.ndarray = dp.parse_to_np(path_Us_temp_3A)
 
 ### Set Constants ###
-q: float = 0.9*1e-4 #m^2
+q: float = 9.0*1e-5 #m^2
 N: int = 17
-r: float = mc.calc_r(q) #m
+r: float = 0.015#m
 l: float = mc.calc_l(N, r) #m
 
 print("l = ", l)
@@ -73,7 +73,7 @@ dfs = [df_tex_3A, df_tex_1A, df_tex_300mA, df_tex_100mA]
 
 
 ### Plot Hysteresis Curves ###
-fig_1A = hys_1A.plot_hysteresis(
+fig_1A,_ = hys_1A.plot_hysteresis(
     title="Hysterese $I=1A$",
     xlabel="$H$ in $A/m$",
     ylabel="$M$ in $A/m$",
@@ -81,7 +81,7 @@ fig_1A = hys_1A.plot_hysteresis(
     coerc_label="Koerzitivfeldstärke $H_c$"
 )
 
-fig_3A = hys_3A.plot_hysteresis(
+fig_3A,_ = hys_3A.plot_hysteresis(
     title="Hysterese $I=3A$",
     xlabel="$H$ in $A/m$",
     ylabel="$M$ in $A/m$",
@@ -89,7 +89,7 @@ fig_3A = hys_3A.plot_hysteresis(
     coerc_label="Koerzitivfeldstärke $H_c$"
 )
 
-fig_300mA = hys_300mA.plot_hysteresis(
+fig_300mA,_ = hys_300mA.plot_hysteresis(
     title="Hysterese $I=300mA$",
     xlabel="$H$ in $A/m$",
     ylabel="$M$ in $A/m$",
@@ -97,7 +97,7 @@ fig_300mA = hys_300mA.plot_hysteresis(
     coerc_label="Koerzitivfeldstärke $H_c$"
 )
 
-fig_100mA = hys_100mA.plot_hysteresis(
+fig_100mA,_ = hys_100mA.plot_hysteresis(
     title="Hysterese $I=100mA$",
     xlabel="$H$ in $A/m$",
     ylabel="$M$ in $A/m$",

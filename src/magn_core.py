@@ -13,19 +13,20 @@ def get_U_max(arr: np.ndarray) -> float:
     return np.max(arr) #V
 
 
-def calc_H(U_Hs: np.ndarray, I: float, N: int, l: float) -> np.ndarray:
+def calc_H(U_Hs: np.ndarray, I: float, N_p: int, l: float) -> np.ndarray:
     U_max: float = get_U_max(U_Hs)
-    return U_Hs * I / U_max  * N / l  # A/m
+    return U_Hs * I / U_max  * N_p / l  # A/m
 
 
-def calc_M(U_Ms: np.ndarray, q:float, N: int, nu: float = 50.0) -> np.ndarray:
-    return U_Ms / (47*N*q*nu*mu_0)  # A/m
+def calc_M(U_Ms: np.ndarray, q:float, N_s: int, nu: float = 50.0) -> np.ndarray:
+    return U_Ms / (47*N_s*q*nu*mu_0)  # A/m
 
 
-def calc_H_Ms(Us: np.ndarray, I: float, N: int, q: float, nu: float = 50.0) -> np.ndarray:
-    r: float = calc_r(q)
-    l: float = calc_l(N, r)
-    Hs = calc_H(Us[:, 0], I, N, l)
-    Ms = calc_M(Us[:, 1], q, N, nu)
+def calc_H_Ms(Us: np.ndarray, I: float, N_p: int, q: float, nu: float = 50.0, N_s=None, r = 0.015) -> np.ndarray:
+    if N_s == None:
+        N_s = N_p
+    l: float = calc_l(N_p, r)
+    Hs = calc_H(Us[:, 0], I, N_p, l)
+    Ms = calc_M(Us[:, 1], q, N_s, nu)
     H_Ms = np.column_stack((Hs, Ms))
     return H_Ms

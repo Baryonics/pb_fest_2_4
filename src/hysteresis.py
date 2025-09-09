@@ -8,16 +8,21 @@ from fit_params_tex import FitParametersTex
 import fit_params_tex as fptx
 
 
-def export_latex(dfs, cap: str, path: str, filename: str,):
-    combined_df = (
-        pd.concat([d.set_index("$I$ in $[A]$") for d in dfs], axis=1) 
-        .reset_index()
-    )
+def export_latex(dfs: np.ndarray, cap: str, path: str, filename: str):
+    cf_str: str = "c|c"
+    if len(dfs) > 1:
+        cf_str = "c|c|c|c|c"
+        combined_df = (
+            pd.concat([d.set_index("$I$ in $[A]$") for d in dfs], axis=1) 
+            .reset_index()
+        )
+    else:
+        combined_df = dfs[0]
 
     tex = combined_df.to_latex(
         index=False,
         escape=False,
-        column_format="c|c|c|c|c",
+        column_format=cf_str,
         caption=cap,
         label="tab:hysterese",
         position="H"
@@ -34,15 +39,17 @@ def export_latex(dfs, cap: str, path: str, filename: str,):
 
 
 class Hysteresis:  
-    def __init__(self, X_Ys: np.ndarray):
+    def __init__(self, X_Ys: np.ndarray, is_fit:bool=True):
+        self.is_fit: bool = is_fit
         self.X_Ys = X_Ys
-        self.param_names = ["$L_0$", "$U_0$", "$k_0$", "$x_{c}^0$", "$\nu_0$", "$m_0$"]  
-        self.b_pos, self.b_neg = self._split_branch()
-        self.b_pos_params, self.b_pos_param_err = self._fit_branch(self.b_pos)
-        self.b_neg_params, self.b_neg_param_err = self._fit_branch(self.b_neg)
-        self.y_r, self.y_r_lower, self.y_r_upper = self._calc_y_r()
-        self.x_c, self.x_c_lower, self.x_c_upper = self._calc_x_c()
-        self.M_max, self.M_max_lower, self.M_max_upper = self._calc_M_max()
+        self.param_names = ["$L_0$", "$U_0$", "$k_0$", "$x_{c}^0$", "$\nu_0$", "$m_0$"]
+        if is_fit:
+            self.b_pos, self.b_neg = self._split_branch()
+            self.b_pos_params, self.b_pos_param_err = self._fit_branch(self.b_pos)
+            self.b_neg_params, self.b_neg_param_err = self._fit_branch(self.b_neg)
+            self.y_r, self.y_r_lower, self.y_r_upper = self._calc_y_r()
+            self.x_c, self.x_c_lower, self.x_c_upper = self._calc_x_c()
+        self.M_max, self.M_max_lower, self.M_max_upper, self.H_at_M_max = self._calc_M_max()
         
     
     
@@ -143,40 +150,53 @@ class Hysteresis:
     
     
     def _calc_M_max(self):
-        M_max_upper = max(self.X_Ys[:, 1])
-        M_max_lower = min(self.X_Ys[:, 1])
+        idx_upper = np.argmax(self.X_Ys[:,1])
+        idx_lower = np.argmin(self.X_Ys[:,1])
+        M_max_upper = self.X_Ys[idx_upper,1]
+        M_max_lower = self.X_Ys[idx_lower,1]
+        H_at_M_max_upper = self.X_Ys[idx_upper,0]
+        H_at_M_max_lower = self.X_Ys[idx_lower,0]
+        #M_max_upper = max(self.X_Ys[:, 1])
+        #M_max_lower = min(self.X_Ys[:, 1])
+        H_at_M_max_val = (abs(H_at_M_max_lower) + abs(H_at_M_max_upper)) / 2.0
+        H_at_M_max_err = abs((abs(H_at_M_max_lower) - abs(H_at_M_max_upper)) / 2.0)
         M_max_val = (abs(M_max_lower) + abs(M_max_upper)) / 2.0
         M_max_err = abs((abs(M_max_lower) - abs(M_max_upper)) / 2.0)
-        return ufloat(M_max_val, M_max_err), M_max_lower, M_max_upper
+        return ufloat(M_max_val, M_max_err), M_max_lower, M_max_upper, ufloat(H_at_M_max_val, H_at_M_max_err)
     
     
     
-    def plot_hysteresis(self, title: str, xlabel: str, ylabel: str, rem_label: str, coerc_label: str):
-        fig, ax = plt.subplots()
-        ax.set_title(title)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0)) 
-        ax.grid()
-        ax.scatter(self.X_Ys[:, 0], self.X_Ys[:, 1], label="Messdaten", s=3)
-        #ax.scatter(self.b_neg[:, 0], self.b_neg[:, 1], label="branch 2", s=3)
+    def plot_hysteresis(self, title: str=None, xlabel: str=None, ylabel: str=None, rem_label: str=None, coerc_label: str=None, ax_=None, label:str = "Messdaten", is_plot_fit=True):
+        if ax_ != None:
+            ax = ax_
+            fig = ax_.figure
+        else: 
+            fig, ax = plt.subplots()
+            ax.set_title(title)
+            ax.set_xlabel(xlabel)
+            ax.set_ylabel(ylabel)
+            ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0)) 
+            ax.grid()
+        ax.scatter(self.X_Ys[:, 0], self.X_Ys[:, 1], label=label, s=3)
+            #ax.scatter(self.b_neg[:, 0], self.b_neg[:, 1], label="branch 2", s=3)
         
-        x_fit = np.linspace(min(self.X_Ys[:,0]), max(self.X_Ys[:,0]), 1000)
-        y_fit_b_pos = self._richards(x_fit, *self.b_pos_params)
-        y_fit_b_neg = self._richards(x_fit, *self.b_neg_params)
-        
-        ax.plot(x_fit, y_fit_b_pos, 'r', label="Fit vorlaufender Ast")
-        ax.plot(x_fit, y_fit_b_neg, 'g', label="Fit rücklaufender Ast")
-        
-        #ax.scatter(self.x_c_lower, 0, color='yellow', s=60, marker='D', edgecolors='black', label="x_c lower")
-        #ax.scatter(self.x_c_upper, 0, color='green', s=60, marker='P', edgecolors='black', label="x_c upper")
-        #ax.scatter(0, self.y_r_lower, color='magenta', s=60, marker='X', edgecolors='black', label="y_r lower")
-        #ax.scatter(0, self.y_r_upper, color='cyan', s=60, marker='*', edgecolors='black', label="y_r upper")
-        
-        ax.errorbar(0, self.y_r.n, yerr=self.y_r.s, fmt='o', color='cyan', label=rem_label)
-        ax.errorbar(self.x_c.n, 0, xerr=self.x_c.s, fmt='o', color='magenta', label=coerc_label)
+        if self.is_fit and is_plot_fit:
+            x_fit = np.linspace(min(self.X_Ys[:,0]), max(self.X_Ys[:,0]), 1000)
+            y_fit_b_pos = self._richards(x_fit, *self.b_pos_params)
+            y_fit_b_neg = self._richards(x_fit, *self.b_neg_params)
+            
+            ax.plot(x_fit, y_fit_b_pos, 'r', label="Fit vorlaufender Ast")
+            ax.plot(x_fit, y_fit_b_neg, 'g', label="Fit rücklaufender Ast")
+            
+            #ax.scatter(self.x_c_lower, 0, color='yellow', s=60, marker='D', edgecolors='black', label="x_c lower")
+            #ax.scatter(self.x_c_upper, 0, color='green', s=60, marker='P', edgecolors='black', label="x_c upper")
+            #ax.scatter(0, self.y_r_lower, color='magenta', s=60, marker='X', edgecolors='black', label="y_r lower")
+            #ax.scatter(0, self.y_r_upper, color='cyan', s=60, marker='*', edgecolors='black', label="y_r upper")
+            
+            ax.errorbar(0, self.y_r.n, yerr=self.y_r.s, fmt='o', color='cyan', label=rem_label)
+            ax.errorbar(self.x_c.n, 0, xerr=self.x_c.s, fmt='o', color='magenta', label=coerc_label)
         ax.legend()
-        return fig
+        return fig, ax
 
 
 
@@ -233,3 +253,5 @@ class Hysteresis:
                                 ]
         })
         return df_tex
+    
+    
