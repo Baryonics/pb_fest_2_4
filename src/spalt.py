@@ -42,7 +42,7 @@ N_s:        int     = 17
 r:          float   = 0.015 #m
 l:          float   = mc.calc_l(N_p, r) #m
 I:          float   = 3.0 #A
-y_scale:    float   = 4.0
+y_scale:    float   = -4.0
 
 ### Excercice 3.4.1 ###
 #---------------------------------------------------------------------#
@@ -131,21 +131,21 @@ fig_1mm,ax_1mm          =   hys_1mm.plot_hysteresis(
     ax_                 =   ax_hysts
 )
 
-ax_hysts.scatter(hys_0mm.H_at_M_max.n, hys_0mm.M_max.n, s=50, color="green")
+
 
 fig_hysts.savefig(plot_path + "spalt_hysteresen.png")
 fig_940mA_0mm.savefig(plot_path + "940mA_0mm.png")
 
 hys_940mA_0mm.save_fit_params_to_tex(
     path                =   res_datapath,
-    fname               =   "spalt_hysteresis_940mA_0_mm.tex",
+    fname               =   "param_spalt_hysteresis_940mA_0_mm.tex",
     current             =   0.940
 )
 
 
 hys_0mm.save_fit_params_to_tex(
     path                =   res_datapath,
-    fname               =   "spalt_hysteresis_0_mm.tex",
+    fname               =   "param_spalt_hysteresis_0_mm.tex",
     current             =   3.0,
 )
 
@@ -178,8 +178,16 @@ print(f"x = {x_val}, y = {y_val}")
 Ns = [hys_to_N(hys) for hys in [hys_0mm, hys_0_075mm, hys_0_125mm, hys_0_2mm, hys_0_5mm, hys_1mm]]
 Hs = [H for H in [hys_0_075mm.H_at_M_max.n, hys_0_125mm.H_at_M_max.n, hys_0_2mm.H_at_M_max.n, hys_0_5mm.H_at_M_max.n, hys_1mm.H_at_M_max.n]]
 ds = [0.0, 0.075,0.125, 0.2, 0.5, 1.0]
-N_theos = [2*d/(2*np.pi*r+2*d) for d in ds]
+N_theos = [2*d*1e-3/(2*np.pi*r+2*d*1e-3) for d in ds]
 
+fig_theos, ax_theos = plt.subplots()
 
+ax_theos.scatter(ds, N_theos)
+ax_theos.set_title("Theoretische Entmagnetisierungen bei verschiedenen Spaltbreiten")
+ax_theos.set_xlabel("$d$ in $[mm]$")
+ax_theos.set_ylabel("$N$")
+ax_theos.grid()
+
+fig_theos.savefig(plot_path + "N_theo.png")
 
 plt.show()
