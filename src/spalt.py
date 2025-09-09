@@ -176,13 +176,14 @@ print(f"x = {x_val}, y = {y_val}")
 
 Ns = [hys_to_N(hys) for hys in [hys_0mm, hys_0_075mm, hys_0_125mm, hys_0_2mm, hys_0_5mm, hys_1mm]]
 Hs = [H for H in [hys_0_075mm.H_at_M_max.n, hys_0_125mm.H_at_M_max.n, hys_0_2mm.H_at_M_max.n, hys_0_5mm.H_at_M_max.n, hys_1mm.H_at_M_max.n]]
-ds = [0.0, 0.075,0.125, 0.2, 0.5, 1.0]
+#ds = [0.0, 0.075,0.125, 0.2, 0.5, 1.0]
+ds = np.linspace(0.0, 1000.0, 1000)
 N_theos = [2*d*1e-3/(2*np.pi*r+2*d*1e-3) for d in ds]
 
 fig_theos, ax_theos = plt.subplots()
 
-ax_theos.scatter(ds, N_theos)
-ax_theos.set_title("Theoretische Entmagnetisierungen bei verschiedenen Spaltbreiten")
+ax_theos.plot(ds, N_theos)
+ax_theos.set_title("$N_{theo}$ in Abhängigkeit von $d$")
 ax_theos.set_xlabel("$d$ in $[mm]$")
 ax_theos.set_ylabel("$N$")
 ax_theos.grid()
