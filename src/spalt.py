@@ -164,11 +164,10 @@ def hys_to_N(hys: Hysteresis):
 M_0 = hys_1mm.M_max.n
 print("M_0 = ", M_0)
 
-# Nur die Zeilen mit x > 0
 mask = hys_0mm.X_Ys[:,0] > 0
 X_pos = hys_0mm.X_Ys[mask]
 
-# Index des nächsten y-Werts nur in diesem gefilterten Array
+
 idx = np.argmin(np.abs(X_pos[:,1] - M_0))
 x_val = X_pos[idx, 0]
 y_val = X_pos[idx, 1]
